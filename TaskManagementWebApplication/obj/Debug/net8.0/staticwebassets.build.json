@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "tDMNUsPawbymWDoHhx8TQaxH33slbxmkbrVdYIqeIvE=",
+  "Source": "TaskManagementWebApplication",
+  "BasePath": "_content/TaskManagementWebApplication",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
