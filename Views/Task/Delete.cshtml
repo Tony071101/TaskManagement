@@ -1,0 +1,28 @@
+@model TaskManagement.DTOs.TaskDeleteDTO
+
+<div class="container mt-4">
+    <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+            <h4>Xác nhận xóa công việc</h4>
+        </div>
+        <div class="card-body">
+            <p>Bạn có chắc chắn muốn xóa task này không? Hành động này không thể hoàn tác.</p>
+            <dl class="row">
+                <dt class="col-sm-3">Tên Task:</dt>
+                <dd class="col-sm-9">@Model.Taskname</dd>
+
+                <dt class="col-sm-3">Trạng thái:</dt>
+                <dd class="col-sm-9"><span class="badge bg-info">@Model.StatusName</span></dd>
+                
+                <dt class="col-sm-3">Ngày tạo:</dt>
+                <dd class="col-sm-9">@Model.Datetaskcreated.ToString("dd/MM/yyyy")</dd>
+            </dl>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="Taskid" />
+                <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Hủy bỏ</a>
+            </form>
+        </div>
+    </div>
+</div>

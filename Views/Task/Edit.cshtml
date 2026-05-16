@@ -1,0 +1,125 @@
+@model TaskManagement.DTOs.TaskUpdateDTO
+
+@{
+    bool isLocked = ViewBag.IsLocked ?? false;
+    bool isAdmin = User.IsInRole("Admin"); // 
+    ViewData["Title"] = "Chỉnh sửa Task";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Chỉnh sửa Task</h4>
+                </div>
+                <div class="card-body">
+                    @if (isLocked)
+                    {
+                        <div class="alert alert-warning border-left-warning">
+                            <i class="fas fa-lock me-2"></i> Task này đã bị khóa, bạn chỉ có thể xem.
+                        </div>
+                    }
+
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Taskid" />
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Tên Task</label>
+                                @* Admin được sửa, User chỉ được xem *@
+                                <input asp-for="Taskname" class="form-control @(isAdmin ? "" : "bg-light")" 
+                                       readonly="@(isAdmin && !isLocked ? null : "readonly")" /> <span asp-validation-for="Taskname" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Danh mục</label>
+                                <select asp-for="Categoryid" class="form-select @(isAdmin ? "" : "bg-light")" 
+                                        asp-items="ViewBag.CategoryList" 
+                                        disabled="@(isAdmin && !isLocked ? null : "disabled")"></select> @if(!isAdmin || isLocked) { <input type="hidden" asp-for="Categoryid" /> } </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Người thực hiện</label>
+                                <select asp-for="Assignedto" class="form-select @(isAdmin ? "" : "bg-light")" 
+                                        asp-items="ViewBag.UserList" 
+                                        disabled="@(isAdmin && !isLocked ? null : "disabled")"> <option value="">-- Chưa giao --</option>
+                                </select>
+                                @if(!isAdmin || isLocked) { <input type="hidden" asp-for="Assignedto" /> } <span asp-validation-for="Assignedto" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Người kiểm duyệt (Checker)</label>
+                                <select asp-for="Taskchecker" class="form-select @(isAdmin ? "" : "bg-light")" 
+                                        asp-items="ViewBag.CheckerList" 
+                                        disabled="@(isAdmin && !isLocked ? null : "disabled")"> <option value="">-- Chưa chọn người kiểm duyệt --</option>
+                                </select>
+                                @if(!isAdmin || isLocked) { <input type="hidden" asp-for="Taskchecker" /> } <span asp-validation-for="Taskchecker" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold">Mô tả chi tiết</label>
+                            <textarea asp-for="Description" class="form-control @(isAdmin ? "" : "bg-light")" rows="4" 
+                                      readonly="@(isAdmin && !isLocked ? null : "readonly")"></textarea> <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tệp đính kèm</label>
+                            @if (!string.IsNullOrEmpty(Model.AttachmentUrl))
+                            {
+                                <div class="mb-2 p-3 border rounded bg-light d-flex align-items-center">
+                                    <i class="fas fa-paperclip me-2 text-primary"></i>
+                                    <div class="flex-grow-1">
+                                        <span class="small text-muted d-block">Tệp hiện tại:</span>
+                                        <a href="@Model.AttachmentUrl" target="_blank" class="text-decoration-none fw-bold">Xem tệp đính kèm</a> </div>
+                                    <input type="hidden" asp-for="AttachmentUrl" /> </div>
+                            }
+
+                            @if (isAdmin && !isLocked)
+                            {
+                                <input type="file" name="AttachmentFile" class="form-control" /> }
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Trạng thái công việc</label>
+                            @if (isAdmin && !isLocked) {
+                                <select asp-for="Statusid" asp-items="ViewBag.StatusList" class="form-select"></select> } else {
+                                <input type="text" class="form-control bg-light" value="@ViewBag.CurrentStatusName" readonly /> @* User không phải Admin khi nhấn Lưu sẽ mặc định gửi trạng thái Done về *@
+                                <input type="hidden" asp-for="Statusid" /> }
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">GitHub Pull Request</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fab fa-github"></i></span>
+                                <input asp-for="GithubPrUrl" class="form-control" 
+                                       readonly="@(isLocked ? "readonly" : null)" /> @if (!string.IsNullOrEmpty(Model.GithubStatus))
+                                {
+                                    var badgeClass = Model.GithubStatus == "Merged" ? "bg-purple" : 
+                                                    (Model.GithubStatus == "Open" ? "bg-success" : "bg-danger");
+                                    <span class="ms-2 badge @badgeClass d-flex align-items-center">
+                                        @Model.GithubStatus
+                                    </span> }
+                            </div>
+                        </div>
+
+                        <hr />
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Index" asp-controller="Home" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Quay lại </a>
+                            @if (!isLocked)
+                            {
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="fas fa-save me-1"></i> Lưu thay đổi </button>
+                            }
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

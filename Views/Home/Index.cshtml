@@ -1,0 +1,193 @@
+﻿@using TaskManagement.Enums
+@using TaskManagement.Viewmodels
+@model HomeDashboardVM
+@{
+    ViewData["Title"] = "Dashboard";
+}
+@Html.AntiForgeryToken()
+
+<div class="container mt-4">
+    <div class="text-center mb-5">
+        <h1 class="display-4">Hệ Thống Quản Lý Task</h1>
+        @if (Model.IsAuthenticated)
+        {
+            <div class="alert alert-info d-inline-block">
+                Chào mừng trở lại, <strong>@User.Identity!.Name</strong>! 
+                <a asp-controller="Account" asp-action="Logout" class="btn btn-sm btn-outline-danger ms-2">Đăng xuất</a>
+            </div>
+        }
+        else
+        {
+            <div class="mt-3">
+                <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Đăng nhập ngay</a>
+                <a asp-controller="Account" asp-action="Register" class="btn btn-outline-secondary">Đăng ký</a>
+            </div>
+        }
+    </div>
+
+    @if (Model.IsAuthenticated)
+    {
+        <div class="mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Danh sách Task gần đây</h4>
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-controller="Task" asp-action="Create" class="btn btn-success">
+                    <i class="bi bi-plus-lg"></i> Tạo Task Mới
+                </a>
+            }
+        </div>
+        <table id="taskIndexTable" class="table table-hover mt-3">
+            <thead class="table-light">
+                <tr>
+                    <th>Tên Task</th>
+                    <th>Thời hạn</th>
+                    <th>Người thực hiện</th>
+                    <th>Người kiểm duyệt</th>
+                    <th>Trạng thái</th>
+                    <th>Loại Task</th>
+                    <th class="text-center">Hành động</th>
+                </tr>
+                <tr class="excel-filters">
+                    <th><input type="text" class="form-control form-control-sm" placeholder="Tìm..."></th>
+                    <th><input type="date" class="form-control form-control-sm"></th>
+                    <th><input type="text" class="form-control form-control-sm" placeholder="Tìm..."></th>
+                    <th><input type="text" class="form-control form-control-sm" placeholder="Tìm..."></th>
+                    <th><input type="text" class="form-control form-control-sm" placeholder="Tìm..."></th>
+                    <th><input type="text" class="form-control form-control-sm" placeholder="Tìm..."></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @* @foreach (var task in Model.RecentTasks)
+                {
+                    var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+                    <tr>
+                        <td class="fw-bold">@task.Taskname</td>
+                        <td>
+                            <small class="text-muted">Tạo: @task.Datetimetaskcreated.ToString("dd/MM")</small><br/>
+                            <span class="@(task.Datetimedue < DateTime.Today ? "text-danger" : "")">
+                                Hạn: @(task.Datetimedue.ToString("dd/MM/yyyy"))
+                            </span>
+                        </td>
+                        <td>@(task.AssignedtoNavigation?.Username ?? "Chưa giao")</td>
+                        <td>@(task.TaskcheckerNavigation?.Username ?? "Chưa giao")</td>
+                        <td>
+                            <span class="badge @(task.Statusid == 3 ? "bg-success" : "bg-primary")">
+                                @task.Status?.Statusname
+                            </span>
+                        </td>
+                        <td>@(task.Category?.Categoryname ?? "Chưa phân loại")</td>
+                        <td class="text-center">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-controller="Task" asp-action="Delete" asp-route-id="@task.Taskid" 
+                                class="btn btn-sm btn-outline-danger" title="Xóa Task">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </a>
+                            }
+                            
+                            <a asp-controller="Task" asp-action="Edit" asp-route-id="@task.Taskid" 
+                            class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i> Sửa
+                            </a>
+                        </td>
+                    </tr>
+                } *@
+            </tbody>
+        </table>
+        @section Scripts {
+            <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+            <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+            <script>
+                $(document).ready(function () {
+                    var table = $('#taskIndexTable').DataTable({
+                        serverSide: true,
+                        processing: true,
+                        ajax: {
+                            url: '@Url.Action("GetTasksData", "Task")', // Đổi tên Controller cho đúng
+                            type: 'POST'
+                        },
+                        columns: [
+                            { data: "taskname" },
+                            { data: "datetimedue" },
+                            { data: "performerName" },
+                            { data: "checkerName" },
+                            { 
+                                data: "statusName",
+                                render: function(data, type, row) {
+                                    let badgeClass = row.statusid == 3 ? "bg-success" : "bg-primary";
+                                    return `<span class="badge ${badgeClass}">${data}</span>`;
+                                }
+                            },
+                            { data: "categoryName" },
+                            {
+                                data: "taskid",
+                                className: "text-center",
+                                render: function(data, type, row) {
+                                    let htmlAction = '';
+                                    
+                                    // Nút Sửa hoặc nhãn Chỉ xem
+                                    if (row.canEdit) {
+                                        htmlAction += `<a href="/Task/Edit/${data}" class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-edit"></i> Sửa</a>`;
+                                    } else {
+                                        htmlAction += `<span class="text-muted small me-2"><i class="fas fa-eye"></i> Chỉ xem</span>`;
+                                    }
+
+                                    // Nút Xóa dành riêng cho Admin
+                                    let isAdmin = @(User.IsInRole("Admin") ? "true" : "false");
+                                    if (isAdmin) {
+                                        htmlAction += `<button onclick="deleteTask(${data})" class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-trash"></i> Xóa
+                                                    </button>`;
+                                    }
+                                    
+                                    return htmlAction;
+                                }
+                            }
+                        ],
+                        dom: 'rtip',
+                        language: {
+                            processing: "Đang tải dữ liệu...",
+                            emptyTable: "Không có dữ liệu"
+                        }
+                    });
+
+                    let filterTimeout;
+                    $('.excel-filters input').on('keyup change clear', function () {
+                        let colIdx = $(this).closest('th').index();
+                        let searchVal = this.value;
+                        
+                        clearTimeout(filterTimeout);
+                        filterTimeout = setTimeout(function() {
+                            table.column(colIdx).search(searchVal).draw();
+                        }, 350);
+                    });
+                });
+                
+                function deleteTask(id) {
+                    if (confirm("Bạn có chắc chắn muốn xóa công việc này không?")) {
+                        const form = document.createElement('form');
+                        form.method = 'post';
+                        form.action = `/Task/Delete/${id}`;
+
+                        // Tìm token bảo mật một cách chính xác hơn
+                        const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+                        if (tokenElement) {
+                            const hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.name = '__RequestVerificationToken';
+                            hiddenInput.value = tokenElement.value;
+                            form.appendChild(hiddenInput);
+                        }
+
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                }
+            </script>
+        }
+    </div>
+    }
+</div>

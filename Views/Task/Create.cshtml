@@ -1,0 +1,94 @@
+@model TaskManagement.DTOs.TaskCreateDTO
+
+@{
+    ViewData["Title"] = "Tạo mới công việc";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Tạo mới công việc</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" enctype="multipart/form-data" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Taskname" class="form-label font-weight-bold">Tên công việc</label>
+                            <input asp-for="Taskname" class="form-control" placeholder="Nhập tên task..." />
+                            <span asp-validation-for="Taskname" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Datetimedue" class="form-label font-weight-bold">Hạn hoàn thành</label>
+                                <input asp-for="Datetimedue" type="date" class="form-control" />
+                                <span asp-validation-for="Datetimedue" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Categoryid" class="form-label font-weight-bold">Danh mục</label>
+                                <select asp-for="Categoryid" class="form-select" asp-items="ViewBag.CategoryList">
+                                    <option value="">-- Chọn danh mục --</option>
+                                </select>
+                                <span asp-validation-for="Categoryid" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Assignedto" class="form-label font-weight-bold">Giao cho</label>
+                                <select asp-for="Assignedto" class="form-select" asp-items="ViewBag.UserList">
+                                    <option value="">-- Chọn người thực hiện --</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Taskchecker" class="form-label font-weight-bold">Người duyệt (Checker)</label>
+                                <select asp-for="Taskchecker" class="form-select" asp-items="ViewBag.CheckerList">
+                                    <option value="">-- Chọn người kiểm duyệt --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label font-weight-bold">Mô tả chi tiết</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Nhập mô tả công việc..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">GitHub Pull Request (Optional)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fab fa-github"></i></span>
+                                <input asp-for="GithubPrUrl" class="form-control" placeholder="https://github.com/owner/repo/pull/1" />
+                            </div>
+                            <span asp-validation-for="GithubPrUrl" class="text-danger"></span>
+                        </div>
+
+                       <div class="mb-3">
+                            <label class="form-label font-weight-bold">Đính kèm (Hình ảnh/Tệp)</label>
+                            <input type="file" name="attachment" class="form-control" />
+                            <small class="form-text text-muted">Dung lượng tối đa 10MB.</small>
+                        </div>
+
+                        <hr />
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" asp-controller="Home" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="fas fa-save"></i> Tạo Task
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Task Management Project",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "codespaces": {
+      "openFiles": [
+        "Controllers/TaskController.cs",
+        "Views/Task/Index.cshtml"
+      ]
+    },
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "postCreateCommand": "dotnet restore && dotnet ef database update"
+}
