@@ -1,0 +1,119 @@
+@model TaskManagement.Viewmodels.AdminDashboardVM
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+@Html.AntiForgeryToken()
+
+<div class="container mt-4">
+    <div class="d-flex align-items-center mb-4 pb-2 border-bottom">
+        <i class="fas fa-user-shield fa-2x text-danger me-3"></i>
+        <h1 class="h2 mb-0">Hệ Thống Quản Trị Hệ Thống (Admin Only)</h1>
+    </div>
+
+    <ul class="nav nav-tabs" id="adminTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab"><i class="fas fa-users me-2"></i>Quản lý Người dùng</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="status-tab" data-bs-toggle="tab" data-bs-target="#status" type="button" role="tab"><i class="fas fa-tasks me-2"></i>Trạng thái Task</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="roles-tab" data-bs-toggle="tab" data-bs-target="#roles" type="button" role="tab"><i class="fas fa-user-tag me-2"></i>Vai trò (Roles)</button>
+        </li>
+    </ul>
+
+    <div class="tab-content card border-top-0 rounded-bottom shadow-sm p-4 bg-white" id="adminTabContent">
+        
+        <div class="tab-pane fade show active" id="users" role="tabpanel">
+            <h4 class="mb-3">Danh sách thành viên nội bộ</h4>
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Họ và tên</th>
+                            <th>Email</th>
+                            <th>Vai trò hiện tại (Role)</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model.Users)
+                        {
+                            <tr>
+                                <td>@user.Userid</td>
+                                <td><strong>@user.Username</strong></td>
+                                <td>@user.Email</td>
+                                <td>
+                                    <form asp-action="UpdateUserRole" method="post" class="d-inline">
+                                        <input type="hidden" name="userId" value="@user.Userid" />
+                                        <select name="roleTypeId" class="form-select form-select-sm d-inline-block w-auto" onchange="this.form.submit()">
+                                            @foreach (var role in Model.RoleTypes)
+                                            {
+                                                <!= So sánh chuỗi hoặc ID tùy theo database model của bạn =>
+                                                <option value="@role.Roletypeid" selected="@(user.Roleid == role.Roletypeid ? "selected" : null)">
+                                                    @role.Rolename
+                                                </option>
+                                            }
+                                        </select>
+                                        @Html.AntiForgeryToken()
+                                    </form>
+                                </td>
+                                <td>
+                                    <form asp-action="DeleteUser" asp-route-id="@user.Userid" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thành viên này không?');" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-user-minus"></i> Xóa</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="status" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4>Cấu hình các bước trạng thái Task</h4>
+                <form asp-action="CreateStatus" method="post" class="d-flex gap-2">
+                    <input type="text" name="statusName" class="form-control form-control-sm" placeholder="Tên trạng thái mới..." required />
+                    <button type="submit" class="btn btn-sm btn-success text-nowrap"><i class="fas fa-plus"></i> Thêm</button>
+                </form>
+            </div>
+            <ul class="list-group">
+                @foreach (var st in Model.StatusTypes)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-circle text-info me-2 small"></i>@st.Statusname</span>
+                        <span class="badge bg-secondary rounded-pill">ID: @st.Taskstatustypeid</span>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <div class="tab-pane fade" id="roles" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4>Phân quyền vai trò hệ thống</h4>
+                <form asp-action="CreateRoleType" method="post" class="d-flex gap-2">
+                    <input type="text" name="roleName" class="form-control form-control-sm" placeholder="Tên Role mới (VD: Manager)..." required />
+                    <button type="submit" class="btn btn-sm btn-primary text-nowrap"><i class="fas fa-plus"></i> Thêm Role</button>
+                </form>
+            </div>
+            <div class="row">
+                @foreach (var role in Model.RoleTypes)
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-light border-start border-primary border-4 shadow-sm">
+                            <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title text-primary mb-1"><i class="fas fa-shield-alt me-2"></i>@role.Rolename</h5>
+                                    <p class="card-text text-muted small mb-0">Mã định danh Role: @role.Roletypeid</p>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

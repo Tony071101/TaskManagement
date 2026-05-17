@@ -119,6 +119,7 @@ C:\Projects\TaskManagement\obj\Debug\net8.0\TaskManagement.csproj.CoreCompileInp
 C:\Projects\TaskManagement\obj\Debug\net8.0\TaskManagement.MvcApplicationPartsAssemblyInfo.cache
 C:\Projects\TaskManagement\obj\Debug\net8.0\TaskManagement.RazorAssemblyInfo.cache
 C:\Projects\TaskManagement\obj\Debug\net8.0\TaskManagement.RazorAssemblyInfo.cs
+C:\Projects\TaskManagement\obj\Debug\net8.0\TaskManagement.sourcelink.json
 C:\Projects\TaskManagement\obj\Debug\net8.0\staticwebassets.build.json
 C:\Projects\TaskManagement\obj\Debug\net8.0\staticwebassets.development.json
 C:\Projects\TaskManagement\obj\Debug\net8.0\staticwebassets\msbuild.TaskManagement.Microsoft.AspNetCore.StaticWebAssets.props

@@ -29,6 +29,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IGitHubClient>(sp => 
     new GitHubClient(new ProductHeaderValue("TaskManagement")));
 
